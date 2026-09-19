@@ -1,18 +1,20 @@
 const express = require("express");
 const cors = require("cors");
-const helmet = require("helmet");
-const morgan = require("morgan");
+const helmet = require("helmet"); // For security headers
+const morgan = require("morgan"); // For logging HTTP requests
 const dotenv = require("dotenv");
 
-dotenv.config();
+dotenv.config();// Load environment variables from .env file
+
+const connectDatabase = require("./src/config/database");
 
 const app = express();
 
 const PORT = process.env.PORT || 5000;
 
-// ===============================
-// Middleware
-// ===============================
+// ==========================================
+// MIDDLEWARE
+// ==========================================
 
 app.use(helmet());
 
@@ -29,9 +31,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan("dev"));
 
-// ===============================
-// Routes
-// ===============================
+// ==========================================
+// ROUTES
+// ==========================================
 
 app.get("/", (req, res) => {
   res.json({
@@ -49,18 +51,22 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// ===============================
-// Start Server
-// ===============================
+// ==========================================
+// START SERVER
+// ==========================================
 
-app.listen(PORT, () => {
-  console.log(`
-╔════════════════════════════════════════════╗
-║          RESQ INTELLIGENCE API            ║
-╠════════════════════════════════════════════╣
-║ Server : http://localhost:${PORT}             ║
-║ Status : RUNNING                           ║
-║ Mode   : ${process.env.NODE_ENV || "development"}                ║
-╚════════════════════════════════════════════╝
-  `);
-});
+const startServer = async () => {
+  await connectDatabase();
+
+  app.listen(PORT, () => {
+    console.log("========================================");
+    console.log("       RESQ INTELLIGENCE API");
+    console.log("========================================");
+    console.log("Server :", `http://localhost:${PORT}`);
+    console.log("Status :", "RUNNING");
+    console.log("Mode   :", process.env.NODE_ENV);
+    console.log("========================================");
+  });
+};
+
+startServer();
